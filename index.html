@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="styles.css" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist@2.16.1/plotly.min.js"></script>
+    <title>Simulation</title>
+</head>
+<body>
+  <section class="container">
+    <section class="form-section">
+        <h1>Enter the information:</h1>
+        <form id="simulation-form">
+            <label for="n">Number of components:</label>
+            <input type="number" name="n" id="n" placeholder="Ex: 12" min=1 required><br>
+    
+            <label for="gamma">Number of dependencies (density):</label>
+            <input type="number" name="gamma" id="gamma" step="0.01" placeholder="Ex:25" required><br>
+    
+            <label for="t_steps">Innovation steps:</label>
+            <input type="number" name="t_steps" id="t_steps" placeholder="Ex: 200 "  required><br>
+    
+            <button type="submit">Submit</button>
+        </form>
+    </section>
+  
+    <section class="result-section">
+        <h2>Result of Design Structure Matrix (DSM) Heatmap:</h2>
+        <div id="dsm-heatmap"></div> <!-- Display DSM Heatmap -->
+    </section>
+
+    <section class="result-section">
+        <h2>Total Cost Evolution:</h2>
+        <div id="cost-evolution"></div> <!-- Display Cost Evolution -->
+    </section>
+  </section>
+
+  <script src="script.js"></script>
+
+</body>
+</html> 
