@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DSM and Cost Evolution</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -17,11 +19,13 @@
       <input type="number" id="dependency" value="3" min="2" max="5">
       
       <button id="generateDSM">Generate DSM</button>
-       <button id="toggleHeatmap">Toggle Correlation Heatmap</button>
+       
     </div>
     
     <div class="visualization">
       <div id="dsmMatrix"></div>
+      <div id="dsm-heatmap"></div>
+
        <div id="correlationHeatmap"></div>
       <canvas id="costGraph"></canvas>
     </div>

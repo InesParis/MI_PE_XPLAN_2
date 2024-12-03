@@ -59,21 +59,35 @@
     gap: 20px;
   }
   
-  #dsmMatrix #correlationHeatmap{
+  /* DSM Matrix styling */
+  #dsmMatrix {
     display: grid;
     gap: 2px;
+    grid-template-columns: repeat(10, 1fr); /* Default number of columns */
     margin-bottom: 20px;
   }
-  #dsmMatrix {
-    grid-template-columns: repeat(10, 1fr);
+  
+  .dsm-cell {
+    width: 30px;
+    height: 30px;
+    background-color: rgba(0, 0, 0, 0.1); /* Default background */
   }
+  
+  /* Correlation Heatmap styling */
   #correlationHeatmap {
     display: grid;
     gap: 2px;
+    grid-template-columns: repeat(5, 1fr); /* Default number of columns */
+    visibility: hidden; /* Start with heatmap hidden */
   }
-
+  
+  #correlationHeatmap.active {
+    visibility: visible; /* Show heatmap when active */
+  }
+  
   #costGraph {
     height: 300px;
     background-color: #fff;
   }
   
+ 

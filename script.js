@@ -59,11 +59,12 @@ function generateDSMMatrix(components, dependencies) {
   }
 
   renderDSMMatrix();
+  plotHeatmap(dsmMatrix); // Plot the heatmap using Plotly
   calculateCorrelationMatrix();
   renderCorrelationHeatmap();
 }
 
-// Render DSM as a heatmap
+// Render DSM as a basic heatmap (visual)
 function renderDSMMatrix() {
   dsmMatrixElement.innerHTML = '';
   dsmMatrix.forEach(row => {
@@ -75,40 +76,71 @@ function renderDSMMatrix() {
     });
   });
 }
-function calculateCorrelationMatrix() {
-    const numComponents = dsmMatrix.length;
-    correlationMatrix = [];
-    
-    for (let i = 0; i < numComponents; i++) {
-      correlationMatrix[i] = [];
-      for (let j = 0; j < numComponents; j++) {
-        let correlation = calculateCorrelation(i, j);
-        correlationMatrix[i][j] = correlation;
-      }
-    }
-  }
-  function calculateCorrelation(i, j) {
-    const sum = dsmMatrix[i].reduce((acc, val, idx) => acc + (val * dsmMatrix[j][idx]), 0);
-    return sum / Math.sqrt(dsmMatrix[i].reduce((acc, val) => acc + val * val, 0) * dsmMatrix[j].reduce((acc, val) => acc + val * val, 0));
-  }
 
-  // Render the correlation heatmap
-function renderCorrelationHeatmap() {
-    correlationHeatmapElement.innerHTML = '';
-    const numComponents = correlationMatrix.length;
-    correlationHeatmapElement.style.gridTemplateColumns = `repeat(${numComponents}, 1fr)`;
-    
-    for (let i = 0; i < numComponents; i++) {
-      for (let j = 0; j < numComponents; j++) {
-        const cell = document.createElement('div');
-        const correlation = correlationMatrix[i][j];
-        const colorIntensity = Math.max(0, Math.min(1, correlation)); // ensure value between 0 and 1
-        const color = `rgba(0, 90, 96, ${colorIntensity})`;
-        cell.style.backgroundColor = color;
-        correlationHeatmapElement.appendChild(cell);
-      }
+// Plot the DSM matrix as a Plotly heatmap
+function plotHeatmap(dsm) {
+  const trace = {
+    z: dsm, // Data for the heatmap
+    type: 'heatmap', // Chart type
+    colorscale: 'Viridis', // Color scale for the heatmap
+    showscale: true // To show the color scale legend
+  };
+
+  const layout = {
+    title: 'Design Structure Matrix Heatmap',
+    xaxis: {
+      title: 'Component Index',
+      tickvals: Array.from({ length: dsm.length }, (_, i) => i),
+      ticktext: Array.from({ length: dsm.length }, (_, i) => `C${i}`)
+    },
+    yaxis: {
+      title: 'Component Index',
+      tickvals: Array.from({ length: dsm.length }, (_, i) => i),
+      ticktext: Array.from({ length: dsm.length }, (_, i) => `C${i}`)
+    },
+    width: 600, // Width of the plot
+    height: 600 // Height of the plot
+  };
+
+  // Create the heatmap in the 'dsm-heatmap' div (Make sure this div exists in the HTML)
+  Plotly.newPlot('dsm-heatmap', [trace], layout);
+}
+
+function calculateCorrelationMatrix() {
+  const numComponents = dsmMatrix.length;
+  correlationMatrix = [];
+  
+  for (let i = 0; i < numComponents; i++) {
+    correlationMatrix[i] = [];
+    for (let j = 0; j < numComponents; j++) {
+      let correlation = calculateCorrelation(i, j);
+      correlationMatrix[i][j] = correlation;
     }
   }
+}
+
+function calculateCorrelation(i, j) {
+  const sum = dsmMatrix[i].reduce((acc, val, idx) => acc + (val * dsmMatrix[j][idx]), 0);
+  return sum / Math.sqrt(dsmMatrix[i].reduce((acc, val) => acc + val * val, 0) * dsmMatrix[j].reduce((acc, val) => acc + val * val, 0));
+}
+
+// Render the correlation heatmap
+function renderCorrelationHeatmap() {
+  correlationHeatmapElement.innerHTML = '';
+  const numComponents = correlationMatrix.length;
+  correlationHeatmapElement.style.gridTemplateColumns = `repeat(${numComponents}, 1fr)`;
+  
+  for (let i = 0; i < numComponents; i++) {
+    for (let j = 0; j < numComponents; j++) {
+      const cell = document.createElement('div');
+      const correlation = correlationMatrix[i][j];
+      const colorIntensity = Math.max(0, Math.min(1, correlation)); // Ensure value between 0 and 1
+      const color = `rgba(0, 90, 96, ${colorIntensity})`;
+      cell.style.backgroundColor = color;
+      correlationHeatmapElement.appendChild(cell);
+    }
+  }
+}
 
 // Simulate cost evolution
 function simulateCostEvolution() {
@@ -163,8 +195,4 @@ generateButton.addEventListener('click', () => {
   simulateCostEvolution();
 });
 
-toggleHeatmapButton.addEventListener('click', () => {
-    // Toggle the heatmap visibility
-    const heatmap = correlationHeatmapElement.style.display === 'none' ? 'grid' : 'none';
-    correlationHeatmapElement.style.display = heatmap;
-  });
+
