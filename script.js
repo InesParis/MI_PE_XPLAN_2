@@ -109,3 +109,70 @@ document.getElementById("simulation-form").addEventListener("submit", function(e
     };
     Plotly.newPlot('dsm-heatmap', [dsmData], dsmLayout);
 });
+
+document.getElementById("simulation-form").addEventListener("submit", function(event) {
+    event.preventDefault(); 
+    
+    // Get user inputs
+    const n = parseInt(document.getElementById("n").value); // Number of components
+    const gamma = parseFloat(document.getElementById("gamma").value); // Gamma value
+    const t_steps = parseInt(document.getElementById("t_steps").value); // Number of steps
+
+    // Generate a random Design Structure Matrix (DSM) based on n
+    const dsm = generateDSM(n);
+    
+    // Plot DSM heatmap
+    plotHeatmap(dsm);
+    
+    // Run simulation and log cost evolution (just a placeholder for now)
+    const costHistory = runSimulation(n, gamma, t_steps, dsm);
+    console.log("Cost History: ", costHistory);
+});
+
+// Function to generate a random DSM
+function generateDSM(n) {
+    let dsm = [];
+    for (let i = 0; i < n; i++) {
+        let row = [];
+        for (let j = 0; j < n; j++) {
+            if (i === j) {
+                row.push(0); // No self-dependence
+            } else {
+                row.push(Math.random() < 0.2 ? 1 : 0); // Random dependencies
+            }
+        }
+        dsm.push(row);
+    }
+    return dsm;
+}
+
+// Function to plot DSM as a heatmap
+function plotHeatmap(dsm) {
+    const trace = {
+        z: dsm, // Data for the heatmap
+        type: 'heatmap', // Chart type
+        colorscale: 'Viridis' // Color scale for the heatmap
+    };
+
+    const layout = {
+        title: 'Design Structure Matrix Heatmap',
+        xaxis: { title: 'Component Index' },
+        yaxis: { title: 'Component Index' }
+    };
+
+    // Create the heatmap in the 'dsm-heatmap' div
+    Plotly.newPlot('dsm-heatmap', [trace], layout);
+}
+
+// Simulate the cost evolution (just a placeholder)
+function runSimulation(n, gamma, t_steps, dsm) {
+    // Dummy simulation logic for the demonstration
+    let costHistory = [];
+    let costs = Array(n).fill().map(() => Math.random()); // Random initial costs
+    for (let step = 0; step < t_steps; step++) {
+        // Update costs here based on some logic (you can replace this with your actual model)
+        let totalCost = costs.reduce((sum, cost) => sum + cost, 0);
+        costHistory.push(totalCost);
+    }
+    return costHistory;
+}
