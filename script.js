@@ -1,5 +1,6 @@
 // Global Variables
 let dsmMatrix = [];
+let correlationMatrix = [];
 let costsOverTime = [];
 let currentTime = 0;
 
@@ -7,7 +8,9 @@ let currentTime = 0;
 const componentsInput = document.getElementById('components');
 const dependencyInput = document.getElementById('dependency');
 const generateButton = document.getElementById('generateDSM');
+const toggleHeatmapButton = document.getElementById('toggleHeatmap');
 const dsmMatrixElement = document.getElementById('dsmMatrix');
+const correlationHeatmapElement = document.getElementById('correlationHeatmap');
 const costGraphCanvas = document.getElementById('costGraph');
 
 // Initialize Chart.js
@@ -56,6 +59,8 @@ function generateDSMMatrix(components, dependencies) {
   }
 
   renderDSMMatrix();
+  calculateCorrelationMatrix();
+  renderCorrelationHeatmap();
 }
 
 // Render DSM as a heatmap
@@ -70,6 +75,40 @@ function renderDSMMatrix() {
     });
   });
 }
+function calculateCorrelationMatrix() {
+    const numComponents = dsmMatrix.length;
+    correlationMatrix = [];
+    
+    for (let i = 0; i < numComponents; i++) {
+      correlationMatrix[i] = [];
+      for (let j = 0; j < numComponents; j++) {
+        let correlation = calculateCorrelation(i, j);
+        correlationMatrix[i][j] = correlation;
+      }
+    }
+  }
+  function calculateCorrelation(i, j) {
+    const sum = dsmMatrix[i].reduce((acc, val, idx) => acc + (val * dsmMatrix[j][idx]), 0);
+    return sum / Math.sqrt(dsmMatrix[i].reduce((acc, val) => acc + val * val, 0) * dsmMatrix[j].reduce((acc, val) => acc + val * val, 0));
+  }
+
+  // Render the correlation heatmap
+function renderCorrelationHeatmap() {
+    correlationHeatmapElement.innerHTML = '';
+    const numComponents = correlationMatrix.length;
+    correlationHeatmapElement.style.gridTemplateColumns = `repeat(${numComponents}, 1fr)`;
+    
+    for (let i = 0; i < numComponents; i++) {
+      for (let j = 0; j < numComponents; j++) {
+        const cell = document.createElement('div');
+        const correlation = correlationMatrix[i][j];
+        const colorIntensity = Math.max(0, Math.min(1, correlation)); // ensure value between 0 and 1
+        const color = `rgba(0, 90, 96, ${colorIntensity})`;
+        cell.style.backgroundColor = color;
+        correlationHeatmapElement.appendChild(cell);
+      }
+    }
+  }
 
 // Simulate cost evolution
 function simulateCostEvolution() {
@@ -124,3 +163,8 @@ generateButton.addEventListener('click', () => {
   simulateCostEvolution();
 });
 
+toggleHeatmapButton.addEventListener('click', () => {
+    // Toggle the heatmap visibility
+    const heatmap = correlationHeatmapElement.style.display === 'none' ? 'grid' : 'none';
+    correlationHeatmapElement.style.display = heatmap;
+  });
