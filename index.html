@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="styles.css" rel="stylesheet">
-
     <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist@2.16.1/plotly.min.js"></script>
     <title>Simulation</title>
 </head>
@@ -16,12 +15,12 @@
             <label for="n">Number of components:</label>
             <input type="number" name="n" id="n" placeholder="Ex: 12" min=1 required><br>
     
-            <label for="gamma">Number of dependencies (density):</label>
-            <input type="number" name="gamma" id="gamma" step="0.01" placeholder="Ex:25" required><br>
-    
-            <label for="t_steps">Innovation steps:</label>
-            <input type="number" name="t_steps" id="t_steps" placeholder="Ex: 200 "  required><br>
-    
+            <label for="dependent-components">Dependent Components (e.g., 1,2 for component 1 depending on 2):</label>
+            <input type="text" name="dependent-components" id="dependent-components" placeholder="E.g., 1,2; 2,3" required><br>
+
+            <label for="modifying-components">Modifying Components (e.g., 2,1 for component 2 modifying 1):</label>
+            <input type="text" name="modifying-components" id="modifying-components" placeholder="E.g., 2,1; 3,4" required><br>
+
             <button type="submit">Submit</button>
         </form>
     </section>
@@ -37,7 +36,7 @@
     </section>
   </section>
 
-  <script src="script.js"></script>
+  <script src="/script.js"></script>
 
 </body>
-</html> 
+</html>
