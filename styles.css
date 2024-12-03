@@ -1,92 +1,72 @@
-body{
-    font-family: Arial, Helvetica, sans-serif;
-    margin:0;
-    padding:0;
-    background-color: #f4f4f4 ;
- 
-}
-
-.container{
-    display:flex;
-    flex-direction:row;
-    justify-content:space-between;
-    padding:20px;
-    margin: 0 10px;
-    background-color:white;
-
-}
-
-.form-section{
-    flex:1;
-    padding:20px;
-    background-color:#A31C31;
-    color:white;
-    border-radius:8px;
-    margin-right:20px;
-}
-
-.result-section{
-    flex:1;
-    padding:20px;
-    background-color: #58595B;
-    color:white;
-    border-radius:8px;
-    margin: 10px;;
-}
-h1, h2 {
-    color: #FFFFFF;
-}
-
-h1 {
-    text-align: center;
-    font-size: 24px;
-}
-
-form {
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  .container {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-}
-
-label {
-    margin-bottom: 8px;
-    font-weight: bold;
-}
-
-input {
-    padding: 8px;
-    margin-bottom: 12px;
-    width: 100%;
-    border-radius: 4px;
+    width: 80%;
+    max-width: 1200px;
+  }
+  
+  .control-panel {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .control-panel label {
+    font-size: 14px;
+  }
+  
+  input[type="number"] {
+    width: 60px;
+    padding: 5px;
+    font-size: 14px;
     border: 1px solid #ccc;
-}
-
-button {
-    background-color: #000000; 
+    border-radius: 4px;
+  }
+  
+  button {
+    padding: 10px 15px;
+    font-size: 14px;
+    background-color: #A31C38; /* MIT Red */
     color: white;
-    padding: 10px 20px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-}
-
-button:hover {
-    background-color: #A31C31; 
-}
-
-section img {
-    width: 100%;
-    max-width: 400px;
-    display: block;
-    margin-top: 20px;
-}
-
-.error-message {
-    color: red;
-    text-align: center;
-}
-
-#dsm-heatmap {
-    width: 100%;  /* Makes it fill the width of the container */
-    height: 500px; /* You can adjust this to fit your layout */
-}
+  }
+  
+  button:hover {
+    background-color: #8c162e;
+  }
+  
+  .visualization {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  #dsmMatrix {
+    display: grid;
+    gap: 2px;
+    margin-bottom: 20px;
+  }
+  
+  #costGraph {
+    height: 300px;
+    background-color: #fff;
+  }
+  

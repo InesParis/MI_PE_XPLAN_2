@@ -1,42 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="styles.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist@2.16.1/plotly.min.js"></script>
-    <title>Simulation</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DSM and Cost Evolution</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <section class="container">
-    <section class="form-section">
-        <h1>Enter the information:</h1>
-        <form id="simulation-form">
-            <label for="n">Number of components:</label>
-            <input type="number" name="n" id="n" placeholder="Ex: 12" min=1 required><br>
+  <div class="container">
+    <div class="control-panel">
+      <label for="components">Number of Components:</label>
+      <input type="number" id="components" value="5" min="2" max="10">
+      
+      <label for="dependency">Number of Dependencies (d):</label>
+      <input type="number" id="dependency" value="3" min="2" max="5">
+      
+      <button id="generateDSM">Generate DSM</button>
+       <button id="toggleHeatmap">Toggle Correlation Heatmap</button>
+    </div>
     
-            <label for="dependent-components">Dependent Components (e.g., 1,2 for component 1 depending on 2):</label>
-            <input type="text" name="dependent-components" id="dependent-components" placeholder="E.g., 1,2; 2,3" required><br>
+    <div class="visualization">
+      <div id="dsmMatrix"></div>
+      <canvas id="costGraph"></canvas>
+    </div>
+  </div>
 
-            <label for="modifying-components">Modifying Components (e.g., 2,1 for component 2 modifying 1):</label>
-            <input type="text" name="modifying-components" id="modifying-components" placeholder="E.g., 2,1; 3,4" required><br>
-
-            <button type="submit">Submit</button>
-        </form>
-    </section>
-  
-    <section class="result-section">
-        <h2>Result of Design Structure Matrix (DSM) Heatmap:</h2>
-        <div id="dsm-heatmap"></div> <!-- Display DSM Heatmap -->
-    </section>
-
-    <section class="result-section">
-        <h2>Total Cost Evolution:</h2>
-        <div id="cost-evolution"></div> <!-- Display Cost Evolution -->
-    </section>
-  </section>
-
-  <script src="/script.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
+
