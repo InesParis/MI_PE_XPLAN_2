@@ -82,3 +82,39 @@ canvas {
   background-color: var(--white);
   border: 1px solid var(--mit-gray);
 }
+/* Additional styles for labeled DSM grid */
+.dsm-grid-wrapper {
+  display: flex;
+  align-items: flex-start;
+}
+
+.dsm-axis {
+  display: flex;
+  flex-direction: column;
+  margin-right: 10px;
+}
+
+.dsm-row-labels,
+.dsm-column {
+  display: grid;
+}
+
+.dsm-row-labels {
+  grid-template-rows: repeat(auto-fill, 25px);
+}
+
+.dsm-column {
+  grid-template-columns: repeat(auto-fill, 25px);
+}
+
+.dsm-label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 25px;
+  height: 25px;
+  background-color: var(--mit-light-gray);
+  border: 1px solid var(--mit-gray);
+  font-size: 12px;
+}
+

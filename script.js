@@ -9,13 +9,38 @@ let totalCostHistory = [];
 
 function updateDSM() {
   const n = parseInt(document.getElementById('n').value);
+
+  // DSM Grid setup
   const dsmGrid = document.getElementById('dsm-grid');
-  dsmGrid.innerHTML = ''; // Clear previous DSM
+  const rowLabels = document.getElementById('dsm-row-labels');
+  const colLabels = document.getElementById('dsm-col-labels');
+
+  dsmGrid.innerHTML = ''; // Clear previous grid
+  rowLabels.innerHTML = ''; // Clear row labels
+  colLabels.innerHTML = ''; // Clear column labels
+
   dsmGrid.style.gridTemplateColumns = `repeat(${n}, auto)`;
+  dsmGrid.style.gridTemplateRows = `repeat(${n}, auto)`;
+  rowLabels.style.gridTemplateRows = `repeat(${n}, auto)`;
+  colLabels.style.gridTemplateColumns = `repeat(${n}, auto)`;
 
   costs = Array(n).fill(0).map(() => Math.random()); // Initialize costs
   totalCostHistory = [];
 
+  // Create row and column labels
+  for (let i = 1; i <= n; i++) {
+    const rowLabel = document.createElement('div');
+    rowLabel.classList.add('dsm-label');
+    rowLabel.textContent = i;
+    rowLabels.appendChild(rowLabel);
+
+    const colLabel = document.createElement('div');
+    colLabel.classList.add('dsm-label');
+    colLabel.textContent = i;
+    colLabels.appendChild(colLabel);
+  }
+
+  // Populate DSM grid
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
       const cell = document.createElement('div');
@@ -25,6 +50,7 @@ function updateDSM() {
     }
   }
 }
+
 
 function runSimulation() {
   if (costs.length === 0) {
