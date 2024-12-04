@@ -11,15 +11,15 @@
     <div class="container">
         <h1>DSM Technology Cost Evolution</h1>
         
-        <div>
+        <div class="info">
             <label for="num-components">Number of Components:</label>
             <input type="number" id="num-components" min="1" >
-            <button onclick="setNumberOfComponents()">Set Number of Components</button>
+            <button onclick="setNumberOfComponents()">Set Components</button>
         </div>
 
-        <div>
-            <label for="dependencies">Component Dependencies (format: from->to):</label>
-            <input type="text" id="dependencies" placeholder="e.g., 1->2, 2->3">
+        <div class="info">
+            <label for="dependencies">Component Dependencies (format: 1-2):</label>
+            <input type="text" id="dependencies" placeholder="e.g., 1-2, 2-3">
             <button onclick="setDependencies()">Set Dependencies</button>
         </div>
 

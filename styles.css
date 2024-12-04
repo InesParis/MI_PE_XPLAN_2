@@ -21,7 +21,7 @@ body {
 
 .container {
   background-color: #FFFFFF;
-  padding: 20px;
+  padding: 80px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   width: 400px;
@@ -48,6 +48,11 @@ ul {
 li {
   margin: 8px 0;
 }
+.info{
+  display: flex;
+  
+  padding: 10px 20px;
+}
 
 button {
   background-color: var(--primary-color);
@@ -57,7 +62,8 @@ button {
   font-size: 16px;
   cursor: pointer;
   border-radius: 5px;
-  margin-top: 20px;
+  margin: 20px;
+
 }
 
 button:hover {
