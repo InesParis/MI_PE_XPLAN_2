@@ -1,11 +1,10 @@
-// script.js
-
 document.getElementById('update-dsm').addEventListener('click', updateDSM);
 document.getElementById('run').addEventListener('click', runSimulation);
 document.getElementById('clear').addEventListener('click', clearAxes);
 
 let costs = [];
 let totalCostHistory = [];
+let chart; // Variable to hold the Chart.js instance
 
 function updateDSM() {
   const n = parseInt(document.getElementById('n').value);
@@ -51,14 +50,13 @@ function updateDSM() {
   }
 }
 
-
 function runSimulation() {
   if (costs.length === 0) {
     alert('Please update DSM first.');
     return;
   }
 
-  const iterations = 100;
+  const iterations = 1000; // Number of iterations
   for (let i = 0; i < iterations; i++) {
     const randomIndex = Math.floor(Math.random() * costs.length);
     const oldCost = costs[randomIndex];
@@ -78,20 +76,23 @@ function runSimulation() {
 function plotCostEvolution() {
   const ctx = document.getElementById('cost-chart').getContext('2d');
 
-  const data = {
-    labels: totalCostHistory.map((_, index) => index + 1),
-    datasets: [{
-      label: 'Total Cost',
-      data: totalCostHistory,
-      borderColor: 'rgba(163, 31, 52, 1)', // MIT red
-      borderWidth: 2,
-      fill: false,
-    }]
-  };
+  // Clear the chart if it already exists
+  if (chart) {
+    chart.destroy();
+  }
 
-  new Chart(ctx, {
+  chart = new Chart(ctx, {
     type: 'line',
-    data,
+    data: {
+      labels: totalCostHistory.map((_, index) => index + 1),
+      datasets: [{
+        label: 'Total Cost',
+        data: totalCostHistory,
+        borderColor: 'rgba(163, 31, 52, 1)', // MIT red
+        borderWidth: 2,
+        fill: false,
+      }]
+    },
     options: {
       responsive: true,
       scales: {
@@ -106,6 +107,11 @@ function clearAxes() {
   const canvas = document.getElementById('cost-chart');
   canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
   totalCostHistory = [];
+
+  if (chart) {
+    chart.destroy();
+    chart = null;
+  }
 }
 
 
