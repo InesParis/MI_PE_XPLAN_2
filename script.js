@@ -5,13 +5,22 @@ let components = [];
 let history = []; // To store the history for heatmap and line graph
 let dependencies = []; // Array to store component dependencies
 
-// Initialize components with random costs
-function initializeComponents() {
+// Function to initialize components and run the simulation
+function initializeSimulation() {
     components = [];
+    history = []; // Clear previous history
+
+    // Initialize components with random costs
     for (let i = 0; i < n; i++) {
         components.push(Math.random());
     }
-    history = []; // Reset history when components are reinitialized
+
+    // Simulate cost changes for a fixed number of trials (e.g., 100)
+    for (let trial = 0; trial < 100; trial++) {
+        modifyComponent(); // Modify a random component in each trial
+    }
+
+    // Update the UI and the charts
     updateUI();
     updateHeatmap();
     updateLineGraph();
@@ -46,10 +55,6 @@ function modifyComponent() {
         costs: [...components],
         totalCost: calculateTotalCost()
     });
-
-    updateUI();
-    updateHeatmap();
-    updateLineGraph();
 }
 
 // Function to update the UI with current costs
@@ -142,7 +147,7 @@ function updateLineGraph() {
 // Function to handle custom number of components
 function setNumberOfComponents() {
     n = parseInt(document.getElementById('num-components').value);
-    initializeComponents();
+    initializeSimulation(); // Re-run the simulation with the new number of components
 }
 
 // Function to handle setting dependencies
@@ -157,8 +162,13 @@ function setDependencies() {
         if (!dependencies[from]) dependencies[from] = [];
         dependencies[from].push(to);
     });
-    initializeComponents();
+    initializeSimulation(); // Re-run the simulation with the new dependencies
 }
+
+// Initialize the simulation when the page is loaded
+window.onload = function() {
+    initializeSimulation();
+};
 
 
 
