@@ -1,83 +1,109 @@
-
-/* MIT color palette */
+/* styles.css */
 :root {
-  --primary-color: #A41034; /* MIT Red */
-  --secondary-color: #005F73; /* MIT Blue */
-  --background-color: #F1F1F1; /* Light Grey */
-  --accent-color: #0A9396; /* MIT Teal */
-  --text-color: #333; /* Dark Text */
+  --mit-red: #a31f34;
+  --mit-gray: #8a8b8c;
+  --mit-light-gray: #d3d3d4;
+  --white: #ffffff;
+  --black: #000000;
 }
 
 body {
   font-family: Arial, sans-serif;
-  background-color: var(--background-color);
   margin: 0;
   padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+  background-color: var(--mit-light-gray);
+  color: var(--black);
 }
 
 .container {
-  background-color: #FFFFFF;
-  padding: 80px;
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+  background-color: var(--white);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 400px;
+}
+
+header h1 {
   text-align: center;
+  color: var(--mit-red);
 }
 
-h1 {
-  color: var(--primary-color);
-  font-size: 24px;
-}
-
-h2 {
-  color: var(--secondary-color);
-  font-size: 18px;
-}
-
-ul {
-  list-style-type: none;
-  padding: 0;
-  text-align: left;
-  color: var(--text-color);
-}
-
-li {
-  margin: 8px 0;
-}
-.info{
+.controls {
   display: flex;
-  
-  padding: 10px 20px;
+  gap: 15px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+label {
+  font-weight: bold;
+}
+
+input, select, button {
+  padding: 5px;
+  font-size: 16px;
 }
 
 button {
-  background-color: var(--primary-color);
-  color: white;
   border: none;
-  padding: 10px 20px;
-  font-size: 16px;
   cursor: pointer;
-  border-radius: 5px;
-  margin: 20px;
-
+  padding: 10px 15px;
+  border-radius: 4px;
 }
 
-button:hover {
-  background-color: var(--accent-color);
+.button-primary {
+  background-color: var(--mit-red);
+  color: var(--white);
 }
 
-.total-cost-container {
-  margin-top: 20px;
-  font-size: 20px;
-  font-weight: bold;
-  color: var(--secondary-color);
+.button-primary:hover {
+  background-color: var(--mit-gray);
+}
+
+.button-secondary {
+  background-color: var(--mit-gray);
+  color: var(--white);
+}
+
+.visualization {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: 20px;
+}
+
+.dsm-container, .plot-container {
+  flex: 1;
+  min-width: 300px;
+}
+
+#dsm-grid {
+  display: grid;
+  gap: 2px;
+  justify-content: center;
+  margin-top: 10px;
+  background-color: var(--white);
+}
+
+.dsm-cell {
+  width: 25px;
+  height: 25px;
+  text-align: center;
+  border: 1px solid var(--mit-gray);
+  background-color: var(--mit-light-gray);
+}
+
+.dsm-cell.active {
+  background-color: var(--mit-red);
 }
 
 canvas {
-  margin-top: 30px;
-  width: 100%;
+  display: block;
+  margin: auto;
+  max-width: 100%;
+  background-color: var(--white);
+  border: 1px solid var(--mit-gray);
 }

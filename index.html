@@ -1,47 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DSM Technology Cost Evolution</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DSM Visualizer</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>DSM Technology Cost Evolution</h1>
-        
-        <div class="info">
-            <label for="num-components">Number of Components:</label>
-            <input type="number" id="num-components" min="1" >
-            <button onclick="setNumberOfComponents()">Set Components</button>
-        </div>
+  <div class="container">
+    <header>
+      <h1>DSM Visualizer</h1>
+    </header>
+    <main>
+      <div class="controls">
+        <label for="method">Method:</label>
+        <select id="method">
+          <option value="fixed-in-degree">Fixed In-Degree</option>
+          <option value="random">Random</option>
+        </select>
 
-        <div class="info">
-            <label for="dependencies">Component Dependencies (format: 1-2):</label>
-            <input type="text" id="dependencies" placeholder="e.g., 1-2, 2-3">
-            <button onclick="setDependencies()">Set Dependencies</button>
-        </div>
+        <label for="n">n (components):</label>
+        <input type="number" id="n" min="1" value="10">
 
-        <div id="costs-container">
-            <h2>Component Costs:</h2>
-            <ul id="components-list"></ul>
-        </div>
+        <label for="d">d (degree):</label>
+        <input type="number" id="d" min="0" value="2">
 
-        <div class="action-container">
-            <button onclick="initializeSimulation()">Run Simulation</button>
-        </div>
-        
-        <div class="total-cost-container">
-            <h3 id="total-cost"></h3>
-        </div>
+        <button id="update-dsm" class="button-primary">Update DSM</button>
+        <button id="run" class="button-primary">Run</button>
+        <button id="clear" class="button-secondary">Clear Axes</button>
+      </div>
 
-        <!-- Empty Canvas initially, updated after simulation starts -->
-        <canvas id="heatmap" width="400" height="200"></canvas>
-        <canvas id="line-graph" width="400" height="200"></canvas>
-    </div>
+      <div class="visualization">
+        <div class="dsm-container">
+          <h2>DSM Matrix</h2>
+          <div id="dsm-grid"></div>
+        </div>
+        <div class="plot-container">
+          <h2>Cost Evolution</h2>
+          <canvas id="cost-chart"></canvas>
+        </div>
+      </div>
+    </main>
+  </div>
 
-    <script src="script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
 
