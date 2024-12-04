@@ -18,8 +18,8 @@
         </div>
 
         <div>
-            <label for="dependencies">Component Dependencies (format: from-to):</label>
-            <input type="text" id="dependencies" placeholder="e.g., 1-2, 2-3">
+            <label for="dependencies">Component Dependencies (format: from->to):</label>
+            <input type="text" id="dependencies" placeholder="e.g., 1->2, 2->3">
             <button onclick="setDependencies()">Set Dependencies</button>
         </div>
 
@@ -29,7 +29,7 @@
         </div>
 
         <div class="action-container">
-            <button onclick="modifyComponent()">Modify Random Component</button>
+            <button onclick="initializeSimulation()">Run Simulation</button>
         </div>
         
         <div class="total-cost-container">
