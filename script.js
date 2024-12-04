@@ -1,4 +1,4 @@
-// JavaScript: DSM Model Logic with Dependency Heatmap
+// JavaScript: DSM Model Logic with Empty Graphs Until Input
 
 let n = 5; // Default number of components
 let components = [];
@@ -22,8 +22,8 @@ function initializeSimulation() {
 
     // Update the UI and the charts
     updateUI();
-    updateDependencyHeatmap(); // Show dependencies heatmap
-    updateLineGraph(); // Show the line graph of cost evolution
+    updateHeatmap();
+    updateLineGraph();
 }
 
 // Function to calculate the total cost of the technology
@@ -72,17 +72,14 @@ function updateUI() {
     totalCost.textContent = `Total Cost: $${calculateTotalCost()}`;
 }
 
-// Function to update the dependency heatmap (showing component dependencies as a matrix)
-function updateDependencyHeatmap() {
+// Function to update the heatmap (using Chart.js)
+function updateHeatmap() {
     let heatmapData = {
         labels: Array.from({ length: n }, (_, i) => `Component ${i + 1}`),
         datasets: [{
-            label: 'Component Dependencies',
-            data: generateDependencyMatrix(),
-            backgroundColor: function(context) {
-                const value = context.raw;
-                return value > 0 ? `rgba(255, 99, 132, ${value})` : 'rgba(0, 0, 0, 0)';
-            },
+            label: 'Component Costs',
+            data: components,
+            backgroundColor: components.map(cost => `rgba(${Math.floor(cost * 255)}, 100, 150, 0.7)`),
             borderColor: 'black',
             borderWidth: 1
         }]
@@ -91,7 +88,7 @@ function updateDependencyHeatmap() {
     let heatmapCtx = document.getElementById('heatmap').getContext('2d');
     if (window.heatmapChart) window.heatmapChart.destroy(); // Destroy the previous chart to prevent stacking
     window.heatmapChart = new Chart(heatmapCtx, {
-        type: 'matrix',
+        type: 'bar',
         data: heatmapData,
         options: {
             responsive: true,
@@ -100,31 +97,19 @@ function updateDependencyHeatmap() {
             },
             scales: {
                 x: {
-                    type: 'category',
-                    labels: Array.from({ length: n }, (_, i) => `Component ${i + 1}`)
+                    beginAtZero: true
                 },
                 y: {
-                    type: 'category',
-                    labels: Array.from({ length: n }, (_, i) => `Component ${i + 1}`)
+                    max: 1,
+                    min: 0,
+                    stepSize: 0.1
                 }
             }
         }
     });
 }
 
-// Function to generate the dependency matrix based on the `dependencies` array
-function generateDependencyMatrix() {
-    let matrix = [];
-    for (let i = 0; i < n; i++) {
-        for (let j = 0; j < n; j++) {
-            // If component `i` depends on component `j`, mark the matrix with a value
-            matrix.push(dependencies[i] && dependencies[i].includes(j) ? 1 : 0);
-        }
-    }
-    return matrix;
-}
-
-// Function to update the line graph (showing total cost over time)
+// Function to update the line graph (using Chart.js)
 function updateLineGraph() {
     let lineData = {
         labels: history.map((_, index) => index + 1),
@@ -183,8 +168,8 @@ function setDependencies() {
 // Initialize the simulation when the page is loaded, but keep graphs empty initially
 window.onload = function() {
     updateUI(); // To show the UI with the default values
-    updateDependencyHeatmap(); // Empty graph initially for dependency heatmap
-    updateLineGraph(); // Empty graph initially for line graph
+    updateHeatmap(); // Empty graph initially
+    updateLineGraph(); // Empty graph initially
 };
 
 
