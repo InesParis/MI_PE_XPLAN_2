@@ -8,6 +8,8 @@ let chart; // Variable to hold the Chart.js instance
 
 function updateDSM() {
   const n = parseInt(document.getElementById('n').value);
+  const d = parseInt(document.getElementById('d').value);
+  const method = document.getElementById('method').value;
 
   // DSM Grid setup
   const dsmGrid = document.getElementById('dsm-grid');
@@ -44,7 +46,19 @@ function updateDSM() {
     for (let j = 0; j < n; j++) {
       const cell = document.createElement('div');
       cell.classList.add('dsm-cell');
-      cell.textContent = i === j ? "1" : ""; // Simple DSM identity matrix for now
+
+      if (method === 'fixed-in-degree') {
+        // Fixed in-degree: Ensure each component has exactly "d" incoming dependencies
+        if (i !== j && Math.random() < d / n) {
+          cell.textContent = "1";
+        } else {
+          cell.textContent = "";
+        }
+      } else if (method === 'random') {
+        // Random: Randomly populate the DSM with 1s and 0s
+        cell.textContent = Math.random() < 0.5 ? "1" : "";
+      }
+
       dsmGrid.appendChild(cell);
     }
   }
