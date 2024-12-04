@@ -118,3 +118,7 @@ canvas {
   font-size: 12px;
 }
 
+.results{
+  display:flex
+}
+
