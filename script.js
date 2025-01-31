@@ -43,20 +43,22 @@ function updateDSM() {
 
   // Populate DSM grid
   for (let i = 0; i < n; i++) {
+    let dependencies = 0;
     for (let j = 0; j < n; j++) {
       const cell = document.createElement('div');
       cell.classList.add('dsm-cell');
 
       if (method === 'fixed-in-degree') {
         // Fixed in-degree: Ensure each component has exactly "d" incoming dependencies
-        if (i !== j && Math.random() < d / n) {
-          cell.textContent = "1";
+        if (i !== j && dependencies < d) {
+          cell.style.backgroundColor = 'blue'; // Use color to represent dependency
+          dependencies++;
         } else {
-          cell.textContent = "";
+          cell.style.backgroundColor = 'white'; // No dependency
         }
       } else if (method === 'random') {
-        // Random: Randomly populate the DSM with 1s and 0s
-        cell.textContent = Math.random() < 0.5 ? "1" : "";
+        // Random: Randomly populate the DSM with colors
+        cell.style.backgroundColor = Math.random() < 0.5 ? 'blue' : 'white';
       }
 
       dsmGrid.appendChild(cell);
@@ -127,7 +129,3 @@ function clearAxes() {
     chart = null;
   }
 }
-
-
-
-
