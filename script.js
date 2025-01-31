@@ -92,22 +92,31 @@ function runSimulation() {
     return;
   }
 
-  const iterations = 1000; // Number of iterations
+  const n = costs.length;
+  const d = parseInt(document.getElementById('d').value);
+  const iterations = 1000; 
+  totalCostHistory = [];
+
   for (let i = 0; i < iterations; i++) {
-    const randomIndex = Math.floor(Math.random() * costs.length);
+    const randomIndex = Math.floor(Math.random() * n);
     const oldCost = costs[randomIndex];
-    const newCost = Math.random();
+    const dependencyFactor = 1 + (d / n); // More dependencies -> Slower reduction
+
+    // Generate new cost considering dependencies
+    const newCost = oldCost - (Math.random() / dependencyFactor);
 
     if (newCost < oldCost) {
-      costs[randomIndex] = newCost; // Accept lower cost
+      costs[randomIndex] = Math.max(newCost, 0); // Ensure cost never goes negative
     }
 
+    // Calculate total cost
     const totalCost = costs.reduce((acc, cost) => acc + cost, 0);
     totalCostHistory.push(totalCost);
   }
 
   plotCostEvolution();
 }
+
 
 function plotCostEvolution() {
   const ctx = document.getElementById('cost-chart').getContext('2d');
