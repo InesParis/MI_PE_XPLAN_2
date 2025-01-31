@@ -7,8 +7,15 @@ let totalCostHistory = [];
 let chart; // Variable to hold the Chart.js instance
 
 function updateDSM() {
-  const n = parseInt(document.getElementById('n').value);
-  const d = parseInt(document.getElementById('d').value);
+  let n = parseInt(document.getElementById('n').value);
+  let d = parseInt(document.getElementById('d').value);
+
+  // Ensure d does not exceed n
+  if (d > n) {
+    alert(`Dependencies (d) cannot be greater than components (n). Adjusting d to ${n}.`);
+    d = n;
+    document.getElementById('d').value = n; // Update input field to match
+  }
 
   const dsmGrid = document.getElementById('dsm-grid');
   const rowLabels = document.getElementById('dsm-row-labels');
@@ -42,10 +49,7 @@ function updateDSM() {
   // Create a 2D array to store dependencies
   const matrix = Array.from({ length: n }, () => Array(n).fill(0));
 
-  // Limit dependencies to avoid exceeding available rows
-  const maxDependencies = Math.min(d, n);
-
-  for (let i = 0; i < maxDependencies; i++) {
+  for (let i = 0; i < d; i++) {
     const dependencies = new Set();
     
     // Always mark the diagonal (1-1, 2-2, ...)
@@ -75,6 +79,7 @@ function updateDSM() {
     }
   }
 }
+
 
 
 
