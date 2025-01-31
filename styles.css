@@ -81,6 +81,8 @@ button {
 canvas {
   background-color: var(--white);
   border: 1px solid var(--mit-gray);
+  max-width: 100%;
+  height: auto;
 }
 /* Additional styles for labeled DSM grid */
 .dsm-grid-wrapper {
@@ -118,7 +120,76 @@ canvas {
   font-size: 12px;
 }
 
-.results{
-  display:flex
+.results {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px; /* Adds spacing */
 }
+/* Make the DSM matrix container expand */
+.dsm-container {
+  flex: 2; /* Takes more space */
+  min-width: 500px;
+  padding: 10px;
+  border: 1px solid var(--mit-gray);
+  border-radius: 8px;
+  background-color: var(--white);
+  text-align: center;
+  width: 100%;
+  max-width: 1000px; /* Gives it more space */
+}
+
+/* Allow the DSM grid to grow dynamically */
+.dsm-grid-wrapper {
+  overflow: auto; /* Enables scrolling if needed */
+  max-width: 100%;
+}
+
+/* Make DSM matrix adjust to size */
+#dsm-grid {
+  display: grid;
+  gap: 2px;
+  padding: 10px;
+  min-width: 100%;
+  max-width: fit-content;
+  min-height: 300px; /* Ensures it gets space */
+}
+
+/* Bigger cells for better visibility */
+.dsm-cell {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--mit-gray);
+  background-color: var(--mit-light-gray);
+  transition: all 0.2s ease;
+}
+.chart-container {
+  flex: 1; /* Takes less space */
+  min-width: 350px;
+  max-width: 400px;
+  padding: 10px;
+  border: 1px solid var(--mit-gray);
+  border-radius: 8px;
+  background-color: var(--white);
+  text-align: center;
+}
+
+/* Responsive design: Adjust cells for small screens */
+@media (max-width: 768px) {
+  .dsm-cell {
+    width: 20px;
+    height: 20px;
+  }
+  .results {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .dsm-container,
+  .chart-container {
+    max-width: 100%;
+  }
+}
+
 
