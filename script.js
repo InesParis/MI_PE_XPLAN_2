@@ -10,21 +10,20 @@ function updateDSM() {
   const n = parseInt(document.getElementById('n').value);
   const d = parseInt(document.getElementById('d').value);
 
-  // DSM Grid setup
   const dsmGrid = document.getElementById('dsm-grid');
   const rowLabels = document.getElementById('dsm-row-labels');
   const colLabels = document.getElementById('dsm-col-labels');
 
-  dsmGrid.innerHTML = ''; // Clear previous grid
-  rowLabels.innerHTML = ''; // Clear row labels
-  colLabels.innerHTML = ''; // Clear column labels
+  dsmGrid.innerHTML = '';
+  rowLabels.innerHTML = '';
+  colLabels.innerHTML = '';
 
   dsmGrid.style.gridTemplateColumns = `repeat(${n}, auto)`;
   dsmGrid.style.gridTemplateRows = `repeat(${n}, auto)`;
   rowLabels.style.gridTemplateRows = `repeat(${n}, auto)`;
   colLabels.style.gridTemplateColumns = `repeat(${n}, auto)`;
 
-  costs = Array(n).fill(0).map(() => Math.random()); // Initialize costs
+  costs = Array(n).fill(0).map(() => Math.random());
   totalCostHistory = [];
 
   // Create row and column labels
@@ -40,37 +39,44 @@ function updateDSM() {
     colLabels.appendChild(colLabel);
   }
 
-  // Populate DSM grid
-  for (let i = 0; i < n; i++) {
-    const dependencyIndices = new Set();
+  // Create a 2D array to store dependencies
+  const matrix = Array.from({ length: n }, () => Array(n).fill(0));
 
-    // Add dependencies
-    if (d > 0) {
-      dependencyIndices.add(i); // Add the diagonal element
-    }
+  // Limit dependencies to avoid exceeding available rows
+  const maxDependencies = Math.min(d, n);
 
-    // Add additional dependencies randomly in the vertical columns
-    while (dependencyIndices.size < d) {
-      const randomIndex = Math.floor(Math.random() * n);
-      if (randomIndex !== i) {
-        dependencyIndices.add(randomIndex);
+  for (let i = 0; i < maxDependencies; i++) {
+    const dependencies = new Set();
+    
+    // Always mark the diagonal (1-1, 2-2, ...)
+    dependencies.add(i);
+    
+    // Add `d - 1` extra dependencies in the column
+    while (dependencies.size < d) {
+      const randomRow = Math.floor(Math.random() * n);
+      if (!dependencies.has(randomRow)) {
+        dependencies.add(randomRow);
       }
     }
 
+    // Apply dependencies to the matrix
+    dependencies.forEach(row => {
+      matrix[row][i] = 1;
+    });
+  }
+
+  // Populate DSM grid with the matrix data
+  for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
       const cell = document.createElement('div');
       cell.classList.add('dsm-cell');
-
-      if (dependencyIndices.has(j)) {
-        cell.style.backgroundColor = '#a31f34'; // Use color to represent dependency
-      } else {
-        cell.style.backgroundColor = 'white'; // No dependency
-      }
-
+      cell.style.backgroundColor = matrix[i][j] === 1 ? '#a31f34' : 'white';
       dsmGrid.appendChild(cell);
     }
   }
 }
+
+
 
 // Ensure the updateDSM function is called when needed
 document.getElementById('update-dsm-button').addEventListener('click', updateDSM);
