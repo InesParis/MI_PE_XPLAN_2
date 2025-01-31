@@ -9,7 +9,6 @@ let chart; // Variable to hold the Chart.js instance
 function updateDSM() {
   const n = parseInt(document.getElementById('n').value);
   const d = parseInt(document.getElementById('d').value);
-  const method = document.getElementById('method').value;
 
   // DSM Grid setup
   const dsmGrid = document.getElementById('dsm-grid');
@@ -43,28 +42,38 @@ function updateDSM() {
 
   // Populate DSM grid
   for (let i = 0; i < n; i++) {
-    let dependencies = 0;
+    const dependencyIndices = new Set();
+
+    // Add dependencies
+    if (d > 0) {
+      dependencyIndices.add(i); // Add the diagonal element
+    }
+
+    // Add additional dependencies randomly in the vertical columns
+    while (dependencyIndices.size < d) {
+      const randomIndex = Math.floor(Math.random() * n);
+      if (randomIndex !== i) {
+        dependencyIndices.add(randomIndex);
+      }
+    }
+
     for (let j = 0; j < n; j++) {
       const cell = document.createElement('div');
       cell.classList.add('dsm-cell');
 
-      if (method === 'fixed-in-degree') {
-        // Fixed in-degree: Ensure each component has exactly "d" incoming dependencies
-        if (i !== j && dependencies < d) {
-          cell.style.backgroundColor = 'blue'; // Use color to represent dependency
-          dependencies++;
-        } else {
-          cell.style.backgroundColor = 'white'; // No dependency
-        }
-      } else if (method === 'random') {
-        // Random: Randomly populate the DSM with colors
-        cell.style.backgroundColor = Math.random() < 0.5 ? 'blue' : 'white';
+      if (dependencyIndices.has(j)) {
+        cell.style.backgroundColor = '#a31f34'; // Use color to represent dependency
+      } else {
+        cell.style.backgroundColor = 'white'; // No dependency
       }
 
       dsmGrid.appendChild(cell);
     }
   }
 }
+
+// Ensure the updateDSM function is called when needed
+document.getElementById('update-dsm-button').addEventListener('click', updateDSM);
 
 function runSimulation() {
   if (costs.length === 0) {
