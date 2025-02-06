@@ -81,8 +81,6 @@ function updateDSM() {
 }
 
 
-
-
 // Ensure the updateDSM function is called when needed
 document.getElementById('update-dsm-button').addEventListener('click', updateDSM);
 
