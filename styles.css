@@ -7,189 +7,57 @@
 }
 
 body {
-  font-family: Arial, sans-serif;
+  font-family: sans-serif;
   margin: 0;
   padding: 0;
-  background-color: var(--mit-light-gray);
+  background: #f4f4f4;
+  color: #333;
 }
 
 .container {
-  max-width: 1000px;
-  margin: auto;
-  padding: 20px;
-  background-color: var(--white);
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-header h1 {
-  text-align: center;
-  color: var(--mit-red);
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
 }
 
 .controls {
+  background: #fff;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
   display: flex;
-  gap: 15px;
-  justify-content: center;
-  margin-bottom: 20px;
   flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
 }
 
-button {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 4px;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.button-primary {
-  background-color: var(--mit-red);
-  color: var(--white);
-}
-
-.button-secondary {
-  background-color: var(--mit-gray);
-  color: var(--white);
+.controls label {
+  display: flex;
+  flex-direction: column;
 }
 
 .visualization {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-around;
-  gap: 20px;
-}
-
-.dsm-container, .plot-container {
-  flex: 1;
-  min-width: 300px;
-}
-
-#dsm-grid {
-  display: grid;
-  gap: 2px;
-  margin-top: 10px;
-}
-
-.dsm-cell {
-  width: 25px;
-  height: 25px;
-  border: 1px solid var(--mit-gray);
-  background-color: var(--mit-light-gray);
-}
-
-canvas {
-  background-color: var(--white);
-  border: 1px solid var(--mit-gray);
-  max-width: 100%;
-  height: auto;
-}
-/* Additional styles for labeled DSM grid */
-.dsm-grid-wrapper {
-  display: flex;
-  align-items: flex-start;
-}
-
-.dsm-axis {
-  display: flex;
-  flex-direction: column;
-  margin-right: 10px;
-}
-
-.dsm-row-labels,
-.dsm-column {
-  display: grid;
-}
-
-.dsm-row-labels {
-  grid-template-rows: repeat(auto-fill, 25px);
-}
-
-.dsm-column {
-  grid-template-columns: repeat(auto-fill, 25px);
-}
-
-.dsm-label {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 25px;
-  height: 25px;
-  background-color: var(--mit-light-gray);
-  border: 1px solid var(--mit-gray);
-  font-size: 12px;
-}
-
-.results {
-  display: flex;
-  flex-wrap: wrap;
+  gap: 2rem;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 20px; /* Adds spacing */
 }
-/* Make the DSM matrix container expand */
-.dsm-container {
-  flex: 2; /* Takes more space */
-  min-width: 500px;
-  padding: 10px;
-  border: 1px solid var(--mit-gray);
+
+.dsm-container, .graph-container {
+  flex: 1 1 45%;
+  background: #fff;
+  padding: 1rem;
   border-radius: 8px;
-  background-color: var(--white);
+  overflow-x: auto;
+}
+
+#dsm table {
+  border-collapse: collapse;
+}
+
+#dsm td {
+  width: 1.5rem;
+  height: 1.5rem;
   text-align: center;
-  width: 100%;
-  max-width: 1000px; /* Gives it more space */
+  border: 1px solid #ccc;
 }
-
-/* Allow the DSM grid to grow dynamically */
-.dsm-grid-wrapper {
-  overflow: auto; /* Enables scrolling if needed */
-  max-width: 100%;
-}
-
-/* Make DSM matrix adjust to size */
-#dsm-grid {
-  display: grid;
-  gap: 2px;
-  padding: 10px;
-  min-width: 100%;
-  max-width: fit-content;
-  min-height: 300px; /* Ensures it gets space */
-}
-
-/* Bigger cells for better visibility */
-.dsm-cell {
-  width: 30px;
-  height: 30px;
-  border: 1px solid var(--mit-gray);
-  background-color: var(--mit-light-gray);
-  transition: all 0.2s ease;
-}
-.chart-container {
-  flex: 1; /* Takes less space */
-  min-width: 350px;
-  max-width: 400px;
-  padding: 10px;
-  border: 1px solid var(--mit-gray);
-  border-radius: 8px;
-  background-color: var(--white);
-  text-align: center;
-}
-
-/* Responsive design: Adjust cells for small screens */
-@media (max-width: 768px) {
-  .dsm-cell {
-    width: 20px;
-    height: 20px;
-  }
-  .results {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .dsm-container,
-  .chart-container {
-    max-width: 100%;
-  }
-}
-
-

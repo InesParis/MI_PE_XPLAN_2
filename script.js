@@ -1,158 +1,100 @@
-document.getElementById('update-dsm').addEventListener('click', updateDSM);
-document.getElementById('run').addEventListener('click', runSimulation);
-document.getElementById('clear').addEventListener('click', clearAxes);
+let chart;
+const history = [];
 
-let costs = [];
-let totalCostHistory = [];
-let chart; // Variable to hold the Chart.js instance
+document.getElementById("runSimulation").addEventListener("click", () => {
+  const n = parseInt(document.getElementById("components").value);
+  const d = parseInt(document.getElementById("dependencies").value);
+  const mode = document.getElementById("outDegreeMode").value;
 
-function updateDSM() {
-  let n = parseInt(document.getElementById('n').value);
-  let d = parseInt(document.getElementById('d').value);
-
-  // Ensure d does not exceed n
   if (d > n) {
-    alert(`Dependencies (d) cannot be greater than components (n). Adjusting d to ${n}.`);
-    d = n;
-    document.getElementById('d').value = n; // Update input field to match
-  }
-
-  const dsmGrid = document.getElementById('dsm-grid');
-  const rowLabels = document.getElementById('dsm-row-labels');
-  const colLabels = document.getElementById('dsm-col-labels');
-
-  dsmGrid.innerHTML = '';
-  rowLabels.innerHTML = '';
-  colLabels.innerHTML = '';
-
-  dsmGrid.style.gridTemplateColumns = `repeat(${n}, auto)`;
-  dsmGrid.style.gridTemplateRows = `repeat(${n}, auto)`;
-  rowLabels.style.gridTemplateRows = `repeat(${n}, auto)`;
-  colLabels.style.gridTemplateColumns = `repeat(${n}, auto)`;
-
-  costs = Array(n).fill(0).map(() => Math.random());
-  totalCostHistory = [];
-
-  // Create row and column labels
-  for (let i = 1; i <= n; i++) {
-    const rowLabel = document.createElement('div');
-    rowLabel.classList.add('dsm-label');
-    rowLabel.textContent = i;
-    rowLabels.appendChild(rowLabel);
-
-    const colLabel = document.createElement('div');
-    colLabel.classList.add('dsm-label');
-    colLabel.textContent = i;
-    colLabels.appendChild(colLabel);
-  }
-
-  // Create a 2D array to store dependencies
-  const matrix = Array.from({ length: n }, () => Array(n).fill(0));
-
-  for (let i = 0; i < d; i++) {
-    const dependencies = new Set();
-    
-    // Always mark the diagonal (1-1, 2-2, ...)
-    dependencies.add(i);
-    
-    // Add `d - 1` extra dependencies in the column
-    while (dependencies.size < d) {
-      const randomRow = Math.floor(Math.random() * n);
-      if (!dependencies.has(randomRow)) {
-        dependencies.add(randomRow);
-      }
-    }
-
-    // Apply dependencies to the matrix
-    dependencies.forEach(row => {
-      matrix[row][i] = 1;
-    });
-  }
-
-  // Populate DSM grid with the matrix data
-  for (let i = 0; i < n; i++) {
-    for (let j = 0; j < n; j++) {
-      const cell = document.createElement('div');
-      cell.classList.add('dsm-cell');
-      cell.style.backgroundColor = matrix[i][j] === 1 ? '#a31f34' : 'white';
-      dsmGrid.appendChild(cell);
-    }
-  }
-}
-
-
-// Ensure the updateDSM function is called when needed
-document.getElementById('update-dsm-button').addEventListener('click', updateDSM);
-
-function runSimulation() {
-  if (costs.length === 0) {
-    alert('Please update DSM first.');
+    alert("Dependencies cannot exceed components.");
     return;
   }
 
-  const n = costs.length;
-  const d = parseInt(document.getElementById('d').value);
-  const iterations = 1000; 
-  totalCostHistory = [];
+  const DSM = generateDSM(n, d, mode);
+  renderDSM(DSM);
+  const costSeries = runSimulation(DSM, 200);
+  updateChart(costSeries);
+});
 
-  for (let i = 0; i < iterations; i++) {
-    const randomIndex = Math.floor(Math.random() * n);
-    const oldCost = costs[randomIndex];
-    const dependencyFactor = 1 + (d / n); // More dependencies -> Slower reduction
-
-    // Generate new cost considering dependencies
-    const newCost = oldCost - (Math.random() / dependencyFactor);
-
-    if (newCost < oldCost) {
-      costs[randomIndex] = Math.max(newCost, 0); // Ensure cost never goes negative
+function generateDSM(n, d, mode) {
+  const DSM = Array.from({ length: n }, () => Array(n).fill(0));
+  for (let i = 0; i < n; i++) {
+    DSM[i][i] = 1;
+    let targets = new Set();
+    while (targets.size < (mode === "fixed" ? d : Math.floor(Math.random() * d) + 1)) {
+      let j = Math.floor(Math.random() * n);
+      if (j !== i) targets.add(j);
     }
-
-    // Calculate total cost
-    const totalCost = costs.reduce((acc, cost) => acc + cost, 0);
-    totalCostHistory.push(totalCost);
+    targets.forEach(j => DSM[j][i] = 1);
   }
-
-  plotCostEvolution();
+  return DSM;
 }
 
+function renderDSM(DSM) {
+  const container = document.getElementById("dsm");
+  container.innerHTML = "";
+  const table = document.createElement("table");
+  DSM.forEach(row => {
+    const tr = document.createElement("tr");
+    row.forEach(cell => {
+      const td = document.createElement("td");
+      td.style.backgroundColor = cell ? "#333" : "#fff";
+      tr.appendChild(td);
+    });
+    table.appendChild(tr);
+  });
+  container.appendChild(table);
+}
 
-function plotCostEvolution() {
-  const ctx = document.getElementById('cost-chart').getContext('2d');
+function runSimulation(DSM, steps) {
+  const n = DSM.length;
+  let costs = Array(n).fill(1 / n);
+  const totalCosts = [];
 
-  // Clear the chart if it already exists
-  if (chart) {
-    chart.destroy();
+  for (let t = 0; t < steps; t++) {
+    const i = Math.floor(Math.random() * n);
+    const A_i = DSM.map((_, j) => DSM[j][i] ? j : -1).filter(j => j !== -1);
+    const newCosts = [...costs];
+    let newTotal = 0;
+    A_i.forEach(j => {
+      newCosts[j] = Math.pow(Math.random(), 1);  // γ = 1
+      newTotal += newCosts[j];
+    });
+    const currentTotal = A_i.reduce((sum, j) => sum + costs[j], 0);
+    if (newTotal < currentTotal) {
+      A_i.forEach(j => costs[j] = newCosts[j]);
+    }
+    totalCosts.push(costs.reduce((sum, c) => sum + c, 0));
   }
+  return totalCosts;
+}
 
+function updateChart(costSeries) {
+  history.push(costSeries);
+  if (history.length > 3) history.shift();
+
+  const labels = costSeries.map((_, i) => i);
+  const datasets = history.map((series, idx) => ({
+    label: `Run ${history.length - 3 + idx + 1}`,
+    data: series,
+    fill: false,
+    borderColor: ['#0077cc', '#ff9933', '#66cc66'][idx % 3],
+    tension: 0.4,
+  }));
+
+  if (chart) chart.destroy();
+  const ctx = document.getElementById("costChart").getContext("2d");
   chart = new Chart(ctx, {
     type: 'line',
-    data: {
-      labels: totalCostHistory.map((_, index) => index + 1),
-      datasets: [{
-        label: 'Total Cost',
-        data: totalCostHistory,
-        borderColor: 'rgba(163, 31, 52, 1)', // MIT red
-        borderWidth: 2,
-        fill: false,
-      }]
-    },
+    data: { labels, datasets },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       scales: {
-        x: { title: { display: true, text: 'Iterations' } },
-        y: { title: { display: true, text: 'Cost' } },
+        y: { min: 0, title: { display: true, text: "Total Cost" }},
+        x: { title: { display: true, text: "Time (steps)" }}
       }
     }
   });
-}
-
-function clearAxes() {
-  const canvas = document.getElementById('cost-chart');
-  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-  totalCostHistory = [];
-
-  if (chart) {
-    chart.destroy();
-    chart = null;
-  }
 }
