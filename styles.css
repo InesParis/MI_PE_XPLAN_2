@@ -39,16 +39,33 @@ body {
 .visualization {
   display: flex;
   flex-wrap: wrap;
+
   gap: 2rem;
   justify-content: space-between;
 }
 
 .dsm-container, .graph-container {
-  flex: 1 1 45%;
+  flex: 0 1 30%;
   background: #fff;
   padding: 1rem;
   border-radius: 8px;
   overflow-x: auto;
+}
+
+.graph-container {
+  width: 100%;
+  flex: 1 1 65%; /* Increased from 45% */
+  max-width: none;
+  aspect-ratio: 2 / 3;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  align-items: stretch;
+  /* Ensure the container is always 2:3 and fills available height */
+  height: 90vh;
+  min-height: 450px;
+  max-height: 900px;
 }
 
 #dsm table {
@@ -56,8 +73,21 @@ body {
 }
 
 #dsm td {
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 0.75rem;  /* Reduced from 1.5rem */
+  height: 0.75rem; /* Reduced from 1.5rem */
+
   text-align: center;
   border: 1px solid #ccc;
+}
+
+#costChart {
+  width: 100% !important;
+  height: 100% !important;
+  aspect-ratio: 2 / 3 !important;
+  display: block;
+  background: #fff;
+  border-radius: 8px;
+  box-sizing: border-box;
+  margin: 0 auto;
+  /* Remove min-height/max-height here to let container control it */
 }
