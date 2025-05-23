@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Technology Cost Evolution Simulator</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+ <div class="container">
+    <section class="controls">
+      <h1>Cost Evolution Simulator</h1>
+      <label>Number of Components:
+        <input type="number" id="components" min="2" value="5">
+      </label>
+      <label>Number of Dependencies:
+        <input type="number" id="dependencies" min="1" value="5">
+      </label>
+      <label>Out-Degree Mode:
+        <select id="outDegreeMode">
+          <option value="fixed">Fixed</option>
+          <option value="variable">Variable</option>
+        </select>
+      </label>
+      <button id="runSimulation">Run Simulation</button>
+    </section>
+
+    <section class="visualization">
+      <div class="dsm-container">
+        <h2>Design Structure Matrix</h2>
+        <div id="dsm"></div>
+      </div>
+      <div class="graph-container">
+        <h2>Cost Evolution</h2>
+        <canvas id="costChart"></canvas>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
+
