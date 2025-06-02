@@ -10,8 +10,8 @@ body {
   font-family: sans-serif;
   margin: 0;
   padding: 0;
-  background: #f4f4f4;
-  color: #333;
+  background: var(--mit-light-gray);
+  color: var(--mit-gray);
 }
 
 .container {
@@ -21,7 +21,7 @@ body {
 }
 
 .controls {
-  background: #fff;
+  background: var(--white);
   padding: 1rem;
   margin-bottom: 1rem;
   border-radius: 8px;
@@ -34,60 +34,118 @@ body {
 .controls label {
   display: flex;
   flex-direction: column;
+  color: var(--mit-gray);
+}
+
+.controls h1 {
+  color: var(--mit-red);
+}
+
+.controls button,
+button#runSimulation {
+  background: var(--mit-red);
+  color: var(--white);
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.controls button:hover,
+button#runSimulation:hover {
+  background: #7c1627;
 }
 
 .visualization {
   display: flex;
   flex-wrap: wrap;
-
   gap: 2rem;
-  justify-content: space-between;
+  justify-content: flex-start;
+  align-items: stretch;
+  flex-direction: row;
 }
 
 .dsm-container, .graph-container {
-  flex: 0 1 30%;
-  background: #fff;
+  background: var(--white);
   padding: 1rem;
   border-radius: 8px;
   overflow-x: auto;
-}
-
-.graph-container {
-  width: 100%;
-  flex: 1 1 65%; /* Increased from 45% */
+  margin-bottom: 1rem;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  height: auto;
+  aspect-ratio: unset;
   max-width: none;
-  aspect-ratio: 2 / 3;
-  margin: 0 auto;
+  max-height: none;
   display: flex;
   flex-direction: column;
-  justify-content: stretch;
-  align-items: stretch;
-  /* Ensure the container is always 2:3 and fills available height */
-  height: 90vh;
-  min-height: 450px;
-  max-height: 900px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* Responsive: stack vertically on small screens */
+@media (max-width: 900px) {
+  .visualization {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .dsm-container, .graph-container {
+    max-width: 100%;
+    width: 100%;
+    margin: 0 0 1rem 0;
+    height: auto;
+    min-height: 0;
+    aspect-ratio: unset;
+  }
+}
+
+#dsm {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  overflow: auto;
+  /* Prevent overflow for large matrices */
+  max-width: 100%;
+  max-height: 100%;
 }
 
 #dsm table {
   border-collapse: collapse;
+  margin: 0 auto;
+  /* Remove fixed scale, use responsive scaling below */
+  transform: none;
+  transform-origin: center;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 #dsm td {
-  width: 0.75rem;  /* Reduced from 1.5rem */
-  height: 0.75rem; /* Reduced from 1.5rem */
-
+  /* Responsive cell size: shrink for large matrices */
+  width: clamp(1rem, calc(8rem / var(--dsm-size, 5)), 2.8rem);
+  height: clamp(1rem, calc(8rem / var(--dsm-size, 5)), 2.8rem);
   text-align: center;
-  border: 1px solid #ccc;
+  border: 1px solid var(--mit-gray);
+  background: var(--white);
+}
+
+#dsm td[style*="#a31f34"] {
+  background: var(--mit-red) !important;
 }
 
 #costChart {
   width: 100% !important;
   height: 100% !important;
-  aspect-ratio: 2 / 3 !important;
+  aspect-ratio: 1 / 1 !important;
+  min-height: 320px;
+  max-height: 480px;
   display: block;
-  background: #fff;
+  background: var(--white);
   border-radius: 8px;
   box-sizing: border-box;
   margin: 0 auto;
-  /* Remove min-height/max-height here to let container control it */
 }

@@ -9,7 +9,7 @@
 <body>
  <div class="container">
     <section class="controls">
-      <h1>Cost Evolution Simulator</h1>
+      <h1 style="color:#a31f34;">Cost Evolution Simulator</h1>
       <label>Number of Components:
         <input type="number" id="components" min="2" value="5">
       </label>
@@ -22,22 +22,23 @@
           <option value="variable">Variable</option>
         </select>
       </label>
-      <button id="runSimulation">Run Simulation</button>
+      <button id="runSimulation" style="background:#a31f34;color:#fff;">Run Simulation</button>
     </section>
 
     <section class="visualization">
       <div class="dsm-container">
-        <h2>Design Structure Matrix</h2>
+        <h2 style="color:#a31f34;">Design Structure Matrix</h2>
         <div id="dsm"></div>
       </div>
       <div class="graph-container">
-        <h2>Cost Evolution</h2>
+        <h2 style="color:#a31f34;">Cost Evolution</h2>
         <canvas id="costChart"></canvas>
       </div>
     </section>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0"></script>
   <script src="script.js"></script>
 </body>
 </html>
