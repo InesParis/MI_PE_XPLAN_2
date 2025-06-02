@@ -170,43 +170,69 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateChart(history, dependencies, components) {
     const colors = ['#a31f34', '#8a8b8c', '#d3d3d4', '#0074D9'];
-    // Show up to 4 runs as lines with points
-    const datasets = history.slice(-4).map((series, idx) => ({
+    // Only show the latest run as a bold line with points, previous runs as faded lines
+    const displaySteps = 80;
+    const minX = 1;
+    const maxX = displaySteps;
+    const yMin = 1e-6;
+    const yMax = 1;
+
+    function interpolate(series, steps) {
+      const result = [];
+      const n = series.length;
+      for (let i = 0; i < steps; i++) {
+        const pos = (i / (steps - 1)) * (n - 1);
+        const idx = Math.floor(pos);
+        const frac = pos - idx;
+        let y;
+        if (idx + 1 < n) {
+          y = series[idx] * (1 - frac) + series[idx + 1] * frac;
+        } else {
+          y = series[n - 1];
+        }
+        result.push({
+          x: i + 1,
+          y: Math.max(Math.min(y, yMax), yMin)
+        });
+      }
+      return result;
+    }
+
+    // Previous runs as faded lines, latest run as bold line with points
+    const datasets = history.slice(-4, -1).map((series, idx) => ({
       label: `Run ${history.length - history.slice(-4).length + idx + 1}`,
       type: 'line',
-      data: series
-        .map((y, i) => ({ x: i + 1, y: Math.max(y, 1e-6) }))
-        // Only include points where y is less than 1 (to avoid flat line at top)
-        .filter((point, i) => point.y < 0.9999 || i === 0), // always show first point
-      borderColor: colors[idx % colors.length],
-      backgroundColor: colors[idx % colors.length],
+      data: interpolate(series, displaySteps),
+      borderColor: colors[(idx + 1) % colors.length] + "55", // faded
+      backgroundColor: colors[(idx + 1) % colors.length] + "55",
       fill: false,
-      tension: 0.7,
-      pointRadius: 3,
-      pointStyle: 'circle',
-      borderWidth: 2,
+      tension: 0,
+      pointRadius: 0,
+      borderWidth: 1.5,
       showLine: true,
       order: 1
     }));
 
+    // Latest run: bold, with points
+    if (history.length > 0) {
+      datasets.push({
+        label: `Latest Run`,
+        type: 'line',
+        data: interpolate(history[history.length - 1], displaySteps),
+        borderColor: colors[0],
+        backgroundColor: colors[0],
+        fill: false,
+        tension: 0,
+        pointRadius: 4,
+        pointStyle: 'circle',
+        borderWidth: 2.5,
+        showLine: true,
+        order: 2
+      });
+    }
+
     const ctx = document.getElementById("costChart").getContext("2d");
     if (!ctx) return;
-
-    // Find the min/max x and y for all visible points to set axis limits dynamically
-    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-    datasets.forEach(ds => {
-      ds.data.forEach(pt => {
-        if (pt.x < minX) minX = pt.x;
-        if (pt.x > maxX) maxX = pt.x;
-        if (pt.y < minY) minY = pt.y;
-        if (pt.y > maxY) maxY = pt.y;
-      });
-    });
-    // Set some padding and sensible defaults
-    minX = Math.max(1, Math.floor(minX));
-    maxX = Math.max(10, Math.ceil(maxX));
-    minY = Math.max(1e-6, minY * 0.8);
-    maxY = 1; // Always cap at 1 for cost
 
     // Build grid squares as annotation boxes (log-log)
     const gridSquares = [];
@@ -216,8 +242,8 @@ document.addEventListener("DOMContentLoaded", () => {
       for (let j = 0; j < gridRows; j++) {
         const xMin = minX * Math.pow((maxX / minX), i / gridCols);
         const xMax = minX * Math.pow((maxX / minX), (i + 1) / gridCols);
-        const yMinBox = minY * Math.pow((maxY / minY), j / gridRows);
-        const yMaxBox = minY * Math.pow((maxY / minY), (j + 1) / gridRows);
+        const yMinBox = yMin * Math.pow((yMax / yMin), j / gridRows);
+        const yMaxBox = yMin * Math.pow((yMax / yMin), (j + 1) / gridRows);
         gridSquares.push({
           type: 'box',
           xMin, xMax, yMin: yMinBox, yMax: yMaxBox,
@@ -237,7 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
           aspectRatio: 0.5,
           parsing: false,
           plugins: {
-            legend: { display: true },
+            legend: { display: false },
             tooltip: { enabled: true },
             annotation: {
               annotations: gridSquares
@@ -251,9 +277,7 @@ document.addEventListener("DOMContentLoaded", () => {
               min: minX,
               max: maxX,
               title: { display: true, text: "# of Improvements Attempts", font: { size: 16 } },
-              grid: {
-                display: false
-              },
+              grid: { display: false },
               ticks: {
                 callback: val => Number.isInteger(Math.log10(val)) ? `10^${Math.log10(val)}` : '',
                 font: { size: 13 }
@@ -262,12 +286,10 @@ document.addEventListener("DOMContentLoaded", () => {
             y: {
               type: 'logarithmic',
               base: 10,
-              min: minY,
-              max: maxY,
+              min: yMin,
+              max: yMax,
               title: { display: true, text: "Cost", font: { size: 16 } },
-              grid: {
-                display: false
-              },
+              grid: { display: false },
               ticks: {
                 callback: val => Number.isInteger(Math.log10(val)) ? `10^${Math.log10(val)}` : '',
                 font: { size: 13 }
@@ -275,8 +297,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           },
           elements: {
-            line: { borderWidth: 2 },
-            point: { radius: 3 }
+            line: { borderWidth: 2.5 },
+            point: { radius: 4 }
           }
         }
       });
@@ -287,8 +309,8 @@ document.addEventListener("DOMContentLoaded", () => {
       chart.options.scales.x.min = minX;
       chart.options.scales.x.max = maxX;
       chart.options.scales.y.type = 'logarithmic';
-      chart.options.scales.y.min = minY;
-      chart.options.scales.y.max = maxY;
+      chart.options.scales.y.min = yMin;
+      chart.options.scales.y.max = yMax;
       chart.update();
     }
   }
