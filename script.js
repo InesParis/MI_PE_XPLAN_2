@@ -38,12 +38,13 @@ document.addEventListener("DOMContentLoaded", () => {
       lastParams = { components, dependencies, mode };
     }
 
-    // Set simulation steps to 10^7 for performance and full evolution
-    const simSteps = 10000000; // 10 million steps for full evolution
+    // Always use the same number of simulation steps for all component counts
+    const simSteps = 10000000; // 10 million steps for all component counts
     const DSM = generateDSM(components, dependencies, mode);
     renderDSM(DSM);
 
     const simSeries = runSimulation(DSM, simSteps, dependencies, DSM);
+
     history.push(simSeries);
 
     // Keep only the last 3 runs
@@ -114,6 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function runSimulation(DSM, steps, dependencies, fullDSM) {
+    // No dependency on components for steps, always use the same steps
     const n = DSM.length;
     let costs = Array(n).fill(1 / n);
     const totalCosts = [];
@@ -127,8 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let minExp = 1.02;
     let maxExp = 7.0;
     if (dependencies < n / 2) {
-      // Sharpen convexity for low dependencies
-      maxExp = 12.0; // much more convex for low dependencies
+      maxExp = 12.0;
     }
     let exponent = maxExp - ((avgOutDegree - 1) / (n - 2)) * (maxExp - minExp);
     exponent = Math.max(minExp, Math.min(maxExp, exponent));
