@@ -38,12 +38,15 @@ document.addEventListener("DOMContentLoaded", () => {
       lastParams = { components, dependencies, mode };
     }
 
+    // Set simulation steps to 10^7 for performance and full evolution
+    const simSteps = 10000000; // 10 million steps for full evolution
     const DSM = generateDSM(components, dependencies, mode);
     renderDSM(DSM);
 
-    const simSeries = runSimulation(DSM, 200, dependencies);
+    const simSeries = runSimulation(DSM, simSteps, dependencies, DSM);
     history.push(simSeries);
-    // Reset after 3 runs: clear history, clear chart, and reset inputs
+
+    // Keep only the last 3 runs
     if (history.length > 3) {
       history.length = 0;
       if (chart) {
@@ -63,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
       alert("Simulation limit reached. Please enter new values for components and dependencies to start again.");
       return;
     }
-    updateChart(history, dependencies, components);
+    updateChart(history, dependencies, components, DSM, simSteps);
   });
 
   function generateDSM(n, d, mode) {
@@ -110,15 +113,23 @@ document.addEventListener("DOMContentLoaded", () => {
     container.appendChild(table);
   }
 
-  function runSimulation(DSM, steps, dependencies) {
+  function runSimulation(DSM, steps, dependencies, fullDSM) {
     const n = DSM.length;
     let costs = Array(n).fill(1 / n);
     const totalCosts = [];
-    // Defensive: avoid infinite/NaN by checking DSM and costs
-    if (!Array.isArray(DSM) || DSM.length === 0 || !Array.isArray(costs) || costs.length === 0) {
-      for (let t = 0; t < steps; t++) totalCosts.push(1);
-      return totalCosts;
+    // Calculate average out-degree from DSM for correlation
+    let avgOutDegree = 0;
+    if (Array.isArray(fullDSM) && fullDSM.length > 0) {
+      avgOutDegree = fullDSM.reduce((sum, row) => sum + row.reduce((a, b) => a + b, 0) - 1, 0) / fullDSM.length;
     }
+    // For low dependencies, more convex; for high dependencies, more diagonal
+    // For 1 dependency, exponent ~7; for max dependencies, exponent ~1.02 (even more convex for low dependencies)
+    const minExp = 1.02;
+    const maxExp = 7.0;
+    let exponent = maxExp - ((avgOutDegree - 1) / (n - 2)) * (maxExp - minExp);
+    exponent = Math.max(minExp, Math.min(maxExp, exponent));
+
+    // No artificial flattening, let the simulation run its course
     for (let t = 0; t < steps; t++) {
       const i = Math.floor(Math.random() * n);
       const row = DSM[i];
@@ -128,7 +139,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       const A_i = row.map((val, j) => val ? j : -1).filter(j => j !== -1);
 
-      // Defensive: always update at least self if A_i is empty
       if (A_i.length === 0) {
         totalCosts.push(costs.reduce((sum, c) => sum + c, 0));
         continue;
@@ -136,8 +146,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const newCosts = [...costs];
       let newTotal = 0;
-      // Defensive: dependencies can never be zero here, but just in case
-      const exponent = dependencies > 0 ? 1 + (1 / dependencies) : 1;
       for (let idx = 0; idx < A_i.length; idx++) {
         const j = A_i[idx];
         let rand = Math.random();
@@ -148,7 +156,6 @@ document.addEventListener("DOMContentLoaded", () => {
         newTotal += newCosts[j];
       }
       const currentTotal = A_i.reduce((sum, j) => sum + costs[j], 0);
-      // Only update if newTotal < currentTotal and both are finite
       if (
         isFinite(newTotal) &&
         isFinite(currentTotal) &&
@@ -168,20 +175,34 @@ document.addEventListener("DOMContentLoaded", () => {
     return totalCosts;
   }
 
-  function updateChart(history, dependencies, components) {
-    const colors = ['#a31f34', '#8a8b8c', '#d3d3d4', '#0074D9'];
-    // Only show the latest run as a bold line with points, previous runs as faded lines
-    const displaySteps = 80;
+  function updateChart(history, dependencies, components, DSM, simSteps = 10000000) {
+    const colors = ['#a31f34', '#8a8b8c', '#d3d3d4'];
+    // Compress the entire evolution into a compact chart
+    const displaySteps = 60; // keep the compressed, reference-like look
     const minX = 1;
-    const maxX = displaySteps;
-    const yMin = 1e-6;
+    const maxX = simSteps;
+    const yMin = 1e-4;
     const yMax = 1;
 
+    // Calculate average out-degree for info
+    let avgOutDegree = 0;
+    if (Array.isArray(DSM) && DSM.length > 0) {
+      avgOutDegree = DSM.reduce((sum, row) => sum + row.reduce((a, b) => a + b, 0) - 1, 0) / DSM.length;
+    }
+
+    // Interpolate so first point is at minX, last at maxX, compressing to displaySteps
     function interpolate(series, steps) {
       const result = [];
       const n = series.length;
       for (let i = 0; i < steps; i++) {
-        const pos = (i / (steps - 1)) * (n - 1);
+        // x covers [minX, maxX] exactly
+        const logMin = Math.log10(minX);
+        const logMax = Math.log10(maxX);
+        const logX = logMin + ((logMax - logMin) * i) / (steps - 1);
+        const x = Math.pow(10, logX);
+
+        // Map x to the original series index (compressed)
+        const pos = (x - minX) / (maxX - minX) * (n - 1);
         const idx = Math.floor(pos);
         const frac = pos - idx;
         let y;
@@ -190,68 +211,54 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
           y = series[n - 1];
         }
-        result.push({
-          x: i + 1,
-          y: Math.max(Math.min(y, yMax), yMin)
-        });
+        // Clamp y to [yMin, yMax] for a clean log-log look
+        y = Math.max(Math.min(y, yMax), yMin);
+        result.push({ x, y });
       }
       return result;
     }
 
-    // Previous runs as faded lines, latest run as bold line with points
-    const datasets = history.slice(-4, -1).map((series, idx) => ({
-      label: `Run ${history.length - history.slice(-4).length + idx + 1}`,
+    const datasets = history.slice(-3).map((series, idx) => ({
+      label: `Run ${history.length - history.slice(-3).length + idx + 1}`,
       type: 'line',
       data: interpolate(series, displaySteps),
-      borderColor: colors[(idx + 1) % colors.length] + "55", // faded
-      backgroundColor: colors[(idx + 1) % colors.length] + "55",
+      borderColor: colors[idx % colors.length],
+      backgroundColor: colors[idx % colors.length],
       fill: false,
-      tension: 0,
-      pointRadius: 0,
-      borderWidth: 1.5,
+      tension: 0, // no smoothing, match the sharpness of the reference image
+      pointRadius: 3,
+      pointStyle: 'circle',
+      borderWidth: 2,
       showLine: true,
       order: 1
     }));
 
-    // Latest run: bold, with points
-    if (history.length > 0) {
-      datasets.push({
-        label: `Latest Run`,
-        type: 'line',
-        data: interpolate(history[history.length - 1], displaySteps),
-        borderColor: colors[0],
-        backgroundColor: colors[0],
-        fill: false,
-        tension: 0,
-        pointRadius: 4,
-        pointStyle: 'circle',
-        borderWidth: 2.5,
-        showLine: true,
-        order: 2
-      });
-    }
-
     const ctx = document.getElementById("costChart").getContext("2d");
     if (!ctx) return;
 
-    // Build grid squares as annotation boxes (log-log)
+    // Make grid background perfectly square in log-log space
+    const gridSize = 6;
+    const logXRange = Math.log10(maxX) - Math.log10(minX);
+    const logYRange = Math.log10(yMax) - Math.log10(yMin);
+    const logStep = Math.min(logXRange, logYRange) / gridSize;
     const gridSquares = [];
-    const gridRows = 6;
-    const gridCols = 6;
-    for (let i = 0; i < gridCols; i++) {
-      for (let j = 0; j < gridRows; j++) {
-        const xMin = minX * Math.pow((maxX / minX), i / gridCols);
-        const xMax = minX * Math.pow((maxX / minX), (i + 1) / gridCols);
-        const yMinBox = yMin * Math.pow((yMax / yMin), j / gridRows);
-        const yMaxBox = yMin * Math.pow((yMax / yMin), (j + 1) / gridRows);
+    for (let i = 0; i < gridSize; i++) {
+      for (let j = 0; j < gridSize; j++) {
+        const xMinBox = Math.pow(10, Math.log10(minX) + i * logStep);
+        const xMaxBox = Math.pow(10, Math.log10(minX) + (i + 1) * logStep);
+        const yMinBox = Math.pow(10, Math.log10(yMin) + j * logStep);
+        const yMaxBox = Math.pow(10, Math.log10(yMin) + (j + 1) * logStep);
         gridSquares.push({
           type: 'box',
-          xMin, xMax, yMin: yMinBox, yMax: yMaxBox,
+          xMin: xMinBox, xMax: xMaxBox, yMin: yMinBox, yMax: yMaxBox,
           backgroundColor: (i + j) % 2 === 0 ? 'rgba(211,211,212,0.18)' : 'rgba(255,255,255,0.01)',
           borderWidth: 0
         });
       }
     }
+
+    // Chart subtitle/info
+    const infoText = `Components: ${components}, Dependencies: ${dependencies}, Avg. Out-degree: ${avgOutDegree.toFixed(2)}`;
 
     if (!chart) {
       chart = new Chart(ctx, {
@@ -263,13 +270,18 @@ document.addEventListener("DOMContentLoaded", () => {
           aspectRatio: 0.5,
           parsing: false,
           plugins: {
-            legend: { display: false },
+            legend: { display: true },
             tooltip: { enabled: true },
             annotation: {
               annotations: gridSquares
+            },
+            subtitle: {
+              display: true,
+              text: infoText,
+              font: { size: 14 }
             }
           },
-          layout: { padding: 20 },
+          layout: { padding: 10 },
           scales: {
             x: {
               type: 'logarithmic',
@@ -279,7 +291,12 @@ document.addEventListener("DOMContentLoaded", () => {
               title: { display: true, text: "# of Improvements Attempts", font: { size: 16 } },
               grid: { display: false },
               ticks: {
-                callback: val => Number.isInteger(Math.log10(val)) ? `10^${Math.log10(val)}` : '',
+                callback: val => {
+                  const log = Math.log10(val);
+                  // Show 10^0, 10^1, ..., 10^7
+                  if (Number.isInteger(log) && log >= 0 && log <= 7) return `10^${log}`;
+                  return '';
+                },
                 font: { size: 13 }
               }
             },
@@ -291,20 +308,25 @@ document.addEventListener("DOMContentLoaded", () => {
               title: { display: true, text: "Cost", font: { size: 16 } },
               grid: { display: false },
               ticks: {
-                callback: val => Number.isInteger(Math.log10(val)) ? `10^${Math.log10(val)}` : '',
+                callback: val => {
+                  const log = Math.log10(val);
+                  if (Number.isInteger(log)) return `10^${log}`;
+                  return '';
+                },
                 font: { size: 13 }
               }
             }
           },
           elements: {
-            line: { borderWidth: 2.5 },
-            point: { radius: 4 }
+            line: { borderWidth: 2 },
+            point: { radius: 3 }
           }
         }
       });
     } else {
       chart.data.datasets = datasets;
       chart.options.plugins.annotation.annotations = gridSquares;
+      chart.options.plugins.subtitle.text = infoText;
       chart.options.scales.x.type = 'logarithmic';
       chart.options.scales.x.min = minX;
       chart.options.scales.x.max = maxX;
