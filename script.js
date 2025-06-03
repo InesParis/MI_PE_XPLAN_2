@@ -122,10 +122,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (Array.isArray(fullDSM) && fullDSM.length > 0) {
       avgOutDegree = fullDSM.reduce((sum, row) => sum + row.reduce((a, b) => a + b, 0) - 1, 0) / fullDSM.length;
     }
-    // For low dependencies, more convex; for high dependencies, more diagonal
-    // For 1 dependency, exponent ~7; for max dependencies, exponent ~1.02 (even more convex for low dependencies)
-    const minExp = 1.02;
-    const maxExp = 7.0;
+    // For low dependencies, make the curve even more convex and drop faster
+    // If dependencies < n/2, use a higher exponent
+    let minExp = 1.02;
+    let maxExp = 7.0;
+    if (dependencies < n / 2) {
+      // Sharpen convexity for low dependencies
+      maxExp = 12.0; // much more convex for low dependencies
+    }
     let exponent = maxExp - ((avgOutDegree - 1) / (n - 2)) * (maxExp - minExp);
     exponent = Math.max(minExp, Math.min(maxExp, exponent));
 
