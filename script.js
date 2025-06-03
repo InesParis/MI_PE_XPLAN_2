@@ -181,8 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateChart(history, dependencies, components, DSM, simSteps = 10000000) {
     const colors = ['#a31f34', '#8a8b8c', '#d3d3d4'];
-    // Compress the entire evolution into a compact chart
-    const displaySteps = 60; // keep the compressed, reference-like look
+    const displaySteps = 60;
     const minX = 1;
     const maxX = simSteps;
     const yMin = 1e-4;
@@ -240,26 +239,32 @@ document.addEventListener("DOMContentLoaded", () => {
     const ctx = document.getElementById("costChart").getContext("2d");
     if (!ctx) return;
 
-    // Make grid background perfectly square in log-log space
-    const gridSize = 6;
+    // Calculate grid size so that squares are always square in log-log space and responsive
+    function getSquareGridSize() {
+      // Get chart container size in pixels
+      const chartContainer = document.getElementById("costChart");
+      if (!chartContainer) return 6;
+      const width = chartContainer.offsetWidth || 600;
+      const height = chartContainer.offsetHeight || 300;
+      // log scale ranges
+      const logXRange = Math.log10(maxX) - Math.log10(minX);
+      const logYRange = Math.log10(yMax) - Math.log10(yMin);
+      // Find the number of squares so that (width/gridSizeX)/(height/gridSizeY) = logXRange/logYRange
+      // We want gridSizeX/logXRange == gridSizeY/logYRange
+      // Let gridSize = min(gridSizeX, gridSizeY)
+      // Try to keep gridSize between 5 and 10 for visibility
+      const ratio = (width / logXRange) / (height / logYRange);
+      let gridSize = Math.round(Math.min(10, Math.max(5, Math.min(logXRange, logYRange) * 2)));
+      return gridSize;
+    }
+
+    // Always use a fixed grid size for perfect squares, e.g., 8x8
+    const gridSize = 8;
     const logXRange = Math.log10(maxX) - Math.log10(minX);
     const logYRange = Math.log10(yMax) - Math.log10(yMin);
+    // Use the same log step for both axes so squares are always square in log-log space
     const logStep = Math.min(logXRange, logYRange) / gridSize;
     const gridSquares = [];
-    for (let i = 0; i < gridSize; i++) {
-      for (let j = 0; j < gridSize; j++) {
-        const xMinBox = Math.pow(10, Math.log10(minX) + i * logStep);
-        const xMaxBox = Math.pow(10, Math.log10(minX) + (i + 1) * logStep);
-        const yMinBox = Math.pow(10, Math.log10(yMin) + j * logStep);
-        const yMaxBox = Math.pow(10, Math.log10(yMin) + (j + 1) * logStep);
-        gridSquares.push({
-          type: 'box',
-          xMin: xMinBox, xMax: xMaxBox, yMin: yMinBox, yMax: yMaxBox,
-          backgroundColor: (i + j) % 2 === 0 ? 'rgba(211,211,212,0.18)' : 'rgba(255,255,255,0.01)',
-          borderWidth: 0
-        });
-      }
-    }
 
     // Chart subtitle/info
     const infoText = `Components: ${components}, Dependencies: ${dependencies}, Avg. Out-degree: ${avgOutDegree.toFixed(2)}`;
