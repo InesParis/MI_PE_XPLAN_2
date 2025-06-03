@@ -3,6 +3,19 @@ document.addEventListener("DOMContentLoaded", () => {
   const history = [];
   let lastParams = {};
 
+  // Move info message directly next to the run simulation button
+  const runBtn = document.getElementById("runSimulation");
+  if (runBtn && !document.getElementById("simInfoMsg")) {
+    const infoMsg = document.createElement("span");
+    infoMsg.id = "simInfoMsg";
+    infoMsg.style.marginLeft = "1.2rem";
+    infoMsg.style.color = "#a31f34";
+    infoMsg.style.fontWeight = "bold";
+    infoMsg.style.verticalAlign = "middle";
+    infoMsg.textContent = "The simulation needs some time to run. The max number of components is 15 and dependencies is 14";
+    runBtn.after(infoMsg);
+  }
+
   document.getElementById("runSimulation").addEventListener("click", () => {
     const componentsInput = document.getElementById("components");
     const dependenciesInput = document.getElementById("dependencies");
