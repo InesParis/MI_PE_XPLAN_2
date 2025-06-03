@@ -9,9 +9,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const modeInput = document.getElementById("outDegreeMode");
     if (!componentsInput || !dependenciesInput || !modeInput) return;
 
-    const components = parseInt(componentsInput.value);
+    let components = parseInt(componentsInput.value);
     let dependencies = parseInt(dependenciesInput.value);
     const mode = modeInput.value;
+
+    // Limit components and dependencies
+    if (components > 15) {
+      components = 15;
+      componentsInput.value = 15;
+      alert("Maximum allowed components is 15. Adjusted automatically.");
+    }
+    if (dependencies > 14) {
+      dependencies = 14;
+      dependenciesInput.value = 14;
+      alert("Maximum allowed dependencies is 14. Adjusted automatically.");
+    }
 
     if (isNaN(components) || isNaN(dependencies) || components < 2 || dependencies < 1) {
       alert("Please enter valid numbers for components and dependencies.");
@@ -115,7 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function runSimulation(DSM, steps, dependencies, fullDSM) {
-    // No dependency on components for steps, always use the same steps
+    // Always use the same number of steps for all component/dependency counts
     const n = DSM.length;
     let costs = Array(n).fill(1 / n);
     const totalCosts = [];
@@ -124,13 +136,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (Array.isArray(fullDSM) && fullDSM.length > 0) {
       avgOutDegree = fullDSM.reduce((sum, row) => sum + row.reduce((a, b) => a + b, 0) - 1, 0) / fullDSM.length;
     }
-    // For low dependencies, make the curve even more convex and drop faster
-    // If dependencies < n/2, use a higher exponent
+    // For all dependency counts, keep the exponent in a reasonable range
+    // This ensures the curve shape is consistent for both low and high dependencies
     let minExp = 1.02;
     let maxExp = 7.0;
-    if (dependencies < n / 2) {
-      maxExp = 12.0;
-    }
+    // Remove the extra convexity boost for low dependencies
+    // Always use the same exponent mapping for all cases
     let exponent = maxExp - ((avgOutDegree - 1) / (n - 2)) * (maxExp - minExp);
     exponent = Math.max(minExp, Math.min(maxExp, exponent));
 
