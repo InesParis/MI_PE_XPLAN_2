@@ -224,10 +224,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (isFinite(val) && val > maxYValue) maxYValue = val;
       }
     }
-    let yMax = 1;
-    if (maxYValue > 1) {
-      yMax = Math.pow(10, Math.ceil(Math.log10(maxYValue)));
-    }
+   let yMax = 1;
+if (maxYValue > 1) {
+  const upperLimit = 1e6;  // limit very high y-axis values
+  yMax = Math.min(Math.pow(10, Math.ceil(Math.log10(maxYValue))), upperLimit);
+}
 
     // Interpolate so first point is at minX, last at maxX, compressing to displaySteps
     // If x > simSteps, use the last value (flat line to the end)
