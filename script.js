@@ -206,7 +206,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateChart(history, dependencies, components, DSM, simSteps = 10000000) {
     const colors = ['#a31f34', '#8a8b8c', '#d3d3d4'];
-    const displaySteps = 70;
+   const displaySteps = Math.min(200, 70 + dependencies * 10);
     const minX = 1;
     const maxX = 1e10; // Always show up to 10^10
     const yMin = 1e-4;
