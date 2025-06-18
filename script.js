@@ -206,11 +206,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateChart(history, dependencies, components, DSM, simSteps = 10000000) {
     const colors = ['#a31f34', '#8a8b8c', '#d3d3d4'];
-    const displaySteps = 60;
+    const displaySteps = 70;
     const minX = 1;
-    const maxX = simSteps;
+    const maxX = 1e10; // Always show up to 10^10
     const yMin = 1e-4;
-    const yMax = 1;
 
     // Calculate average out-degree for info
     let avgOutDegree = 0;
@@ -218,19 +217,46 @@ document.addEventListener("DOMContentLoaded", () => {
       avgOutDegree = DSM.reduce((sum, row) => sum + row.reduce((a, b) => a + b, 0) - 1, 0) / DSM.length;
     }
 
+    // Dynamically determine yMax based on all simulation data
+    let maxYValue = 0;
+    for (const series of history) {
+      for (const val of series) {
+        if (isFinite(val) && val > maxYValue) maxYValue = val;
+      }
+    }
+    let yMax = 1;
+    if (maxYValue > 1) {
+      yMax = Math.pow(10, Math.ceil(Math.log10(maxYValue)));
+    }
+
     // Interpolate so first point is at minX, last at maxX, compressing to displaySteps
+    // If x > simSteps, use the last value (flat line to the end)
     function interpolate(series, steps) {
       const result = [];
       const n = series.length;
+      // Only stretch the *end* of the series, not the beginning.
+      // Map the simulation steps to the left part of the x axis, then flat to the right.
+      // Find the step where sim data ends in the x axis
+      let simEndStep = steps;
       for (let i = 0; i < steps; i++) {
-        // x covers [minX, maxX] exactly
+        const logMin = Math.log10(minX);
+        const logMax = Math.log10(maxX);
+        const logX = logMin + ((logMax - logMin) * i) / (steps - 1);
+        const x = Math.pow(10, logX);
+        if (x >= simSteps) {
+          simEndStep = i;
+          break;
+        }
+      }
+      // First: interpolate simulation data up to simSteps
+      for (let i = 0; i < simEndStep; i++) {
         const logMin = Math.log10(minX);
         const logMax = Math.log10(maxX);
         const logX = logMin + ((logMax - logMin) * i) / (steps - 1);
         const x = Math.pow(10, logX);
 
-        // Map x to the original series index (compressed)
-        const pos = (x - minX) / (maxX - minX) * (n - 1);
+        // Map x to the original series index, stretching/shrinking to fill [minX, simSteps]
+        const pos = (x - minX) / (simSteps - minX) * (n - 1);
         const idx = Math.floor(pos);
         const frac = pos - idx;
         let y;
@@ -239,9 +265,21 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
           y = series[n - 1];
         }
-        // Clamp y to [yMin, yMax] for a clean log-log look
         y = Math.max(Math.min(y, yMax), yMin);
         result.push({ x, y });
+      }
+      // Then: flat line from simSteps to maxX
+      const lastY = series[n - 1];
+      for (let i = simEndStep; i < steps; i++) {
+        const logMin = Math.log10(minX);
+        const logMax = Math.log10(maxX);
+        const logX = logMin + ((logMax - logMin) * i) / (steps - 1);
+        const x = Math.pow(10, logX);
+        result.push({ x, y: Math.max(Math.min(lastY, yMax), yMin) });
+      }
+      // Ensure the last point is exactly at maxX
+      if (result.length === 0 || result[result.length - 1].x < maxX) {
+        result.push({ x: maxX, y: Math.max(Math.min(lastY, yMax), yMin) });
       }
       return result;
     }
@@ -253,7 +291,7 @@ document.addEventListener("DOMContentLoaded", () => {
       borderColor: colors[idx % colors.length],
       backgroundColor: colors[idx % colors.length],
       fill: false,
-      tension: 0, // no smoothing, match the sharpness of the reference image
+      tension: 0,
       pointRadius: 3,
       pointStyle: 'circle',
       borderWidth: 2,
@@ -327,8 +365,8 @@ document.addEventListener("DOMContentLoaded", () => {
               ticks: {
                 callback: val => {
                   const log = Math.log10(val);
-                  // Show 10^0, 10^1, ..., 10^7
-                  if (Number.isInteger(log) && log >= 0 && log <= 7) return `10^${log}`;
+                  // Show 10^0 ... 10^10
+                  if (Number.isInteger(log) && log >= 0 && log <= 10) return `10^${log}`;
                   return '';
                 },
                 font: { size: 13 }
@@ -369,5 +407,5 @@ document.addEventListener("DOMContentLoaded", () => {
       chart.options.scales.y.max = yMax;
       chart.update();
     }
-  }
+  } // <-- this closing brace was missing or misplaced
 });
